@@ -1,5 +1,5 @@
-#define BLYNK_TEMPLATE_ID "TMPL3WJxey_1Y"
-#define BLYNK_TEMPLATE_NAME "object avoidance car"
+#define BLYNK_TEMPLATE_ID "xxxxxxx"
+#define BLYNK_TEMPLATE_NAME "xxxxxx"
 #define BLYNK_PRINT Serial
 
 #include <WiFi.h>
@@ -7,14 +7,14 @@
 #include <BlynkSimpleEsp32.h>
 
 // Replace with your WiFi credentials
-char auth[] = "nWzSCjyCwu8n1PEUT-2Aft39BtauaQeh"; // Enter your Auth token
-char ssid[] = "realme 9 Pro 5G"; // Enter your WIFI name
-char pass[] = "1234567890"; // Enter your WIFI password
+char auth[] = "xxxxx"; // Enter your Auth token
+char ssid[] = "xxxxx"; // Enter your WIFI name
+char pass[] = "xxxx"; // Enter your WIFI password
 BlynkTimer timer;
 
 // Telegram Bot credentials
-String botToken = "7727587712:AAEp0E9BvvFMvGmA-Ts9x0fkILrTu9930qI"; // Replace with your bot token
-String chatId = "5815381781"; // Replace with your chat ID
+String botToken = "xxxxx"; // Replace with your bot token
+String chatId = "xxxxx"; // Replace with your chat ID
 
 WiFiClient client; // Use WiFiClient for general HTTP connections
 
