@@ -1,0 +1,102 @@
+#define BLYNK_TEMPLATE_ID "TMPL3WJxey_1Y"
+#define BLYNK_TEMPLATE_NAME "object avoidance car"
+#define BLYNK_PRINT Serial
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <BlynkSimpleEsp32.h>
+
+// Replace with your WiFi credentials
+char auth[] = "nWzSCjyCwu8n1PEUT-2Aft39BtauaQeh"; // Enter your Auth token
+char ssid[] = "realme 9 Pro 5G"; // Enter your WIFI name
+char pass[] = "1234567890"; // Enter your WIFI password
+BlynkTimer timer;
+
+// Telegram Bot credentials
+String botToken = "7727587712:AAEp0E9BvvFMvGmA-Ts9x0fkILrTu9930qI"; // Replace with your bot token
+String chatId = "5815381781"; // Replace with your chat ID
+
+WiFiClient client; // Use WiFiClient for general HTTP connections
+
+const int trigPin = 18;   // Adjust GPIO pins for ESP32
+const int echoPin = 19;   // Adjust GPIO pins for ESP32
+long duration;
+int distance;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT);
+
+  // Connect to WiFi
+  WiFi.begin(ssid, pass);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to WiFi!");
+
+  Blynk.begin(auth, ssid, pass, "blynk.cloud", 80);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  // Calculating the distance
+  // Prints the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.println(distance);
+  delay(20);
+
+  // Example variable to send
+  if (distance <= 50) {
+    String message = "!ALERT! Object At Distance: " + String(distance) + "cm";
+    Blynk.virtualWrite(V2, 1);
+    Blynk.virtualWrite(V1, 0);
+    sendMessageToTelegram(message);
+  } else {
+    Blynk.virtualWrite(V1, 1);
+    Blynk.virtualWrite(V2, 0);
+    Blynk.virtualWrite(V3, distance);
+  }
+  Blynk.virtualWrite(V1, 0);
+  Blynk.virtualWrite(V2, 0);
+}
+
+void sendMessageToTelegram(String message) {
+  if (WiFi.status() == WL_CONNECTED) { // Check WiFi connection
+    HTTPClient http;
+
+    // Construct the URL for the HTTP GET request
+    String url = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatId + "&text=" + message;
+
+    http.begin(client, url); // Use WiFiClient for HTTP
+    int httpCode = http.GET(); // Send the GET request
+
+    if (httpCode > 0) {
+      Serial.println("Message sent successfully!");
+      String payload = http.getString(); // Response payload
+      Serial.println(payload);
+    } else {
+      Serial.print("Error sending message: ");
+      Serial.println(httpCode);
+    }
+    http.end(); // Close the connection
+  } else {
+    Serial.println("WiFi not connected");
+  }
+}
